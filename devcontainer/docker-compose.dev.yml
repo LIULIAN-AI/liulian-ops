@@ -1,0 +1,183 @@
+# LIULIAN unified dev stack.
+#
+# All 7 repos live under /workspace (mounted from host); all dev-time
+# services co-exist as sidecars. Edit files on host -> container sees
+# them immediately. Ports mapped to host so the host browser / MCP
+# tools / Postman / Insomnia can hit them directly.
+#
+# Usage:
+#   cd liulian-ops/devcontainer
+#   docker compose -f docker-compose.dev.yml up -d
+#   docker compose -f docker-compose.dev.yml exec workspace bash
+#
+# Or just:  make dev   (after make targets land)
+
+services:
+  # ── The workspace: where you `cd /workspace/liulian-api && uv run ...` ──
+  workspace:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        # Match host UID/GID so file ownership stays sane
+        USER_UID: "${USER_UID:-1000}"
+        USER_GID: "${USER_GID:-1000}"
+    image: liulian/workspace:dev
+    container_name: liulian-workspace
+    hostname: liulian-workspace
+    volumes:
+      # Mount the codes directory (sibling of devcontainer in liulian-ops) → /workspace
+      - ../../..:/workspace:cached
+      # Persist shell history + caches across rebuilds
+      - workspace_home:/home/liulian
+      # Use host docker (so workspace can run docker compose itself if needed)
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Forward the host's SSH agent for gh / git push
+      - ${SSH_AUTH_SOCK:-/dev/null}:/ssh-agent
+    environment:
+      SSH_AUTH_SOCK: /ssh-agent
+      # Service URLs (these resolve via the docker network)
+      LIULIAN_API_URL: http://workspace:8000
+      LIULIAN_AGENT_URL: http://workspace:8001
+      LIULIAN_API_DATABASE_URL: postgresql+asyncpg://liulian:liulian@postgres:5432/liulian_api
+      LIULIAN_API_REDIS_URL: redis://redis:6379/0
+      LIULIAN_API_MINIO_ENDPOINT: minio:9000
+      LIULIAN_API_MINIO_ACCESS_KEY: minioadmin
+      LIULIAN_API_MINIO_SECRET_KEY: minioadmin
+      LIULIAN_API_CORS_ALLOWED_ORIGINS: "http://localhost:3000,http://workspace:3000"
+      # User-provided LLM provider keys (loaded from .env)
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:-}
+      GLM_API_KEY: ${GLM_API_KEY:-}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      # Default to local Ollama (sovereign / offline path)
+      LIULIAN_OFFLINE: "${LIULIAN_OFFLINE:-0}"
+      # Browser-from-host friendliness
+      DISPLAY: ${DISPLAY:-}
+    ports:
+      # → liulian-api FastAPI
+      - "8000:8000"
+      # → liulian-agent FastAPI
+      - "8001:8001"
+      # → liulian-web Next.js dev server
+      - "3000:3000"
+      # → liulian-ingest FastAPI
+      - "8002:8002"
+      # → MkDocs serve (liulian-python docs)
+      - "8080:8080"
+      # → Mobile bundler (Expo Metro)
+      - "8081:8081"
+      # → Storybook
+      - "6006:6006"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_started
+    tty: true
+    stdin_open: true
+    # Keep container alive; user shells in
+    command: ["sleep", "infinity"]
+    networks: [liulian]
+
+  # ── Postgres (plain; TimescaleDB extension enabled after M1 per ADR 0003) ──
+  postgres:
+    image: postgres:16-alpine
+    container_name: liulian-postgres
+    environment:
+      POSTGRES_USER: liulian
+      POSTGRES_PASSWORD: liulian
+      POSTGRES_DB: liulian_api
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U liulian -d liulian_api"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks: [liulian]
+
+  # ── Redis (cache + arq queue) ───────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: liulian-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks: [liulian]
+
+  # ── MinIO (S3-compatible object store) ──────────────────────────────
+  minio:
+    image: minio/minio:latest
+    container_name: liulian-minio
+    command: ["server", "/data", "--console-address", ":9001"]
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - "9000:9000"   # S3 API
+      - "9001:9001"   # MinIO console (web UI)
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks: [liulian]
+
+  # ── Ollama (local LLM; sovereign / offline path per ADR 0002 §9.5) ──
+  # Optional: only starts via `docker compose --profile llm up`
+  ollama:
+    image: ollama/ollama:latest
+    container_name: liulian-ollama
+    profiles: ["llm"]
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    networks: [liulian]
+
+  # ── Observability sidecars (optional via --profile obs) ─────────────
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: liulian-prometheus
+    profiles: ["obs"]
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./obs/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    networks: [liulian]
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: liulian-grafana
+    profiles: ["obs"]
+    ports:
+      - "3001:3000"
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: "Admin"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    depends_on: [prometheus]
+    networks: [liulian]
+
+networks:
+  liulian:
+    name: liulian-dev
+
+volumes:
+  workspace_home:
+  postgres_data:
+  minio_data:
+  ollama_data:
+  grafana_data:
