@@ -1,0 +1,78 @@
+# Neobanker Platform Configuration
+# Copy to config.yaml and fill in your values.
+# Empty string fields will be prompted on first `neoctl init`.
+
+servers:
+  app:
+    host: ""              # App Server IP (filled by 'neoctl init')
+    ssh_port: 10022
+    user: ""              # SSH username (filled by 'neoctl init')
+    key_path: ""          # Path to SSH private key (filled by 'neoctl init')
+    deploy_path: ~/neobanker
+
+  gpu:
+    host: ""              # GPU Server IP (filled by 'neoctl init')
+    ssh_port: 10022
+    user: ""
+    key_path: ""
+    # Direct-TCP ports for LLM servers. Valid ranges: 5000-9000, 37000-39500.
+    ollama_port: 37434    # Ollama listens on 0.0.0.0:<this>
+    vllm_port: 38000      # vLLM listens on 0.0.0.0:<this>
+    model_storage: /nfshdd/models     # Persistent (NFS)
+    model_cache: /localnvme/models    # Fast NVMe scratch
+
+llm:
+  local:
+    backend: ollama       # "ollama" or "vllm"
+    base_url: ""          # Auto-populated by detector
+    models:
+      - name: qwen3.5-9b-opus-distilled-v2:Q8_0
+        hf_repo: Jackrong/Qwen3.5-9B-Claude-4.6-Opus-Reasoning-Distilled-v2-GGUF
+        hf_file: Qwen3.5-9B-Claude-4.6-Opus-Reasoning-Distilled-v2-Q8_0.gguf
+        label: "Opus-Distilled v2 Q8 (quality)"
+      - name: qwen3.5:9b
+        label: "Qwen3.5-9B Official (general)"
+
+  connectivity:
+    method: auto          # "auto", "direct", "forward_tunnel", "reverse_tunnel"
+    # Priority order used by 'auto'. Reverse tunnel is currently broken —
+    # kept last-resort, manual-only. neoctl will not auto-establish it.
+    priority: ["direct", "forward_tunnel", "reverse_tunnel"]
+    local_port: 0         # Auto-populated when forward tunnel wins
+
+  lazy_install: true
+
+  cloud:
+    - name: gemini
+      enabled: true
+      model: gemini-2.0-flash
+      api_key_env: GEMINI_API_KEY
+    - name: claude
+      enabled: true
+      model: claude-haiku-4-5-20251001
+      api_key_env: ANTHROPIC_API_KEY
+    - name: copilot
+      enabled: true
+      model: copilot-chat
+      api_key_env: GITHUB_COPILOT_TOKEN
+    - name: openai
+      enabled: true
+      model: gpt-4o-mini
+      api_key_env: OPENAI_API_KEY
+    - name: openrouter
+      enabled: false
+      model: auto
+      api_key_env: OPENROUTER_API_KEY
+
+deploy:
+  mode: native            # "native", "docker", "ci"
+  services:
+    backend:
+      repo: neo-banker/neobanker-backend-MVP-V2
+      dir: backend
+    frontend:
+      repo: neo-banker/neobanker-frontend-MVP-V3
+      dir: frontend
+    agent:
+      repo: neo-banker/neobanker-agent
+      dir: agent

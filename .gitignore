@@ -1,0 +1,6 @@
+.venv/
+.pytest_cache/
+neoctl.egg-info/
+__pycache__/
+**/__pycache__/
+*.pyc
