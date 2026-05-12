@@ -1,0 +1,61 @@
+name: Infra Bootstrap (Linux)
+
+# Verifies that `bash scripts/bootstrap.sh --infra-only` brings up
+# MySQL + Redis + Elasticsearch on Linux without error.
+#
+# Why Linux only:
+#   - GitHub-hosted macOS runners do NOT include Docker, and colima fails
+#     to boot inside the macOS VM (no nested virtualization on free runners)
+#   - GitHub-hosted Windows runners run Docker in Windows-container mode
+#     by default; switching to Linux containers requires Docker Desktop +
+#     license setup not available on free runners
+#   - For macOS/Windows, see docs/manual-install.md and run locally with
+#     Docker Desktop / Rancher Desktop / OrbStack
+#
+# Note: macOS/Windows are still tested at the lint level (lint.yml runs on
+# all 3 OSes for shell syntax + env template validation).
+
+on:
+  push:
+    branches: [main, "feat/**"]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  infra:
+    name: Infra-only bootstrap (Linux)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check docker
+        run: |
+          docker --version
+          docker compose version
+
+      - name: Bootstrap infra
+        run: bash scripts/bootstrap.sh --infra-only
+
+      - name: Verify all 3 infra healthy
+        run: |
+          set -e
+          echo "=== MySQL ==="
+          docker exec neobanker-mysql mysqladmin ping -uroot -proot
+          echo "=== Redis ==="
+          docker exec neobanker-redis redis-cli ping
+          echo "=== Elasticsearch ==="
+          curl -sS http://127.0.0.1:9200/_cluster/health \
+            | grep -qE '"status":"(green|yellow)"'
+          echo "✅ All 3 infra services healthy"
+
+      - name: Show container state
+        if: always()
+        run: |
+          docker ps -a
+          docker compose -f docker/docker-compose.yml logs --tail=30 || true
+
+      - name: Tear down
+        if: always()
+        run: bash scripts/teardown.sh -v || true

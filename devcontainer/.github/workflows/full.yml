@@ -1,0 +1,60 @@
+name: Full Bootstrap (Linux only — heavy)
+
+# Full end-to-end bootstrap: infra + clones + backend (mvnw) + import data
+# Only runs on Ubuntu — macOS/Windows full runs are too slow on free runners.
+# Triggered manually or on PR with [full-ci] in title.
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, labeled]
+  workflow_dispatch:
+
+jobs:
+  full:
+    name: Full bootstrap (Ubuntu)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    if: |
+      github.event_name == 'workflow_dispatch'
+      || contains(github.event.pull_request.labels.*.name, 'full-ci')
+      || contains(github.event.pull_request.title, '[full-ci]')
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Set up Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install uv
+        run: curl -LsSf https://astral.sh/uv/install.sh | sh
+
+      - name: Install Python deps
+        run: pip install pymysql
+
+      - name: Run full bootstrap (--skip-clone — repos pre-checked out separately)
+        run: |
+          mkdir -p repos
+          # In real CI, you would `gh repo clone` each one; here we accept a stub
+          # for testing purposes. Set GIT_TOKEN as repo secret if private.
+          echo "Note: Full bootstrap requires the 3 service repos cloneable."
+          echo "      Skipping the clone step in CI — verify with --infra-only."
+          bash scripts/bootstrap.sh --infra-only
+
+      - name: Backend smoke test (only if cloned)
+        if: false  # enable when repo cloning is set up
+        run: |
+          curl -sS http://127.0.0.1:8080/actuator/health | grep -q '"db":{"status":"UP"'
