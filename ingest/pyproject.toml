@@ -1,0 +1,46 @@
+[project]
+name = "neobanker-crawler"
+version = "0.1.0"
+description = "Crawler services for Neobanker data ingestion"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.115",
+    "pydantic>=2.7",
+    "pyyaml>=6.0",
+    "uvicorn[standard]>=0.30",
+]
+
+[dependency-groups]
+dev = [
+    "httpx>=0.27",
+    "mypy>=1.10",
+    "pytest>=8",
+    "ruff>=0.5",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/crawler"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"src/crawler/schemas/_java_columns.json" = "crawler/schemas/_java_columns.json"
+"src/crawler/extractor/prompts/about.txt" = "crawler/extractor/prompts/about.txt"
+"src/crawler/extractor/prompts/field_group.txt" = "crawler/extractor/prompts/field_group.txt"
+"config/sources.yaml" = "crawler/config/sources.yaml"
+"config/data_dictionary.yaml" = "crawler/config/data_dictionary.yaml"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+mypy_path = "src"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"

@@ -1,0 +1,25 @@
+# Neobanker Crawler control-plane systemd service
+# Install: sudo cp neobanker-crawler.service /etc/systemd/system/
+#          sudo systemctl daemon-reload && sudo systemctl enable neobanker-crawler
+#
+# Before installing, replace:
+#   <DEPLOY_USER>   - the user running the crawler (e.g. wenjixu)
+#   <CRAWLER_DIR>   - absolute path to the crawler repo (e.g. /home/wenjixu/neobanker/crawler)
+
+[Unit]
+Description=Neobanker Crawler Control Plane (FastAPI)
+After=network.target
+
+[Service]
+Type=simple
+User=<DEPLOY_USER>
+WorkingDirectory=<CRAWLER_DIR>
+ExecStart=<CRAWLER_DIR>/.venv/bin/uvicorn crawler.api.main:app --host 127.0.0.1 --port 8001
+Restart=always
+RestartSec=5
+Environment=PYTHONUNBUFFERED=1
+EnvironmentFile=-/etc/neobanker-crawler/env
+
+[Install]
+WantedBy=multi-user.target
+

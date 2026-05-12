@@ -1,0 +1,1 @@
+"""Neobanker crawler package."""
