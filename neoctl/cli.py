@@ -26,9 +26,9 @@ from neoctl.tunnel import build_reverse_tunnel_command, start_forward_tunnel
 
 console = Console()
 CONFIG_PATH = Path("config.yaml")
-DEFAULT_BACKEND_SERVICE_NAME = "neobanker-backend"
-DEFAULT_FRONTEND_PM2_NAME = "neobanker-frontend-app"
-DEFAULT_AGENT_SERVICE_NAME = "neobanker-agent"
+DEFAULT_BACKEND_SERVICE_NAME = "liulian-api"
+DEFAULT_FRONTEND_PM2_NAME = "liulian-web-app"
+DEFAULT_AGENT_SERVICE_NAME = "liulian-agent"
 
 
 def _load_cfg() -> dict:
@@ -60,7 +60,7 @@ def _get_gpu_ssh(cfg: dict) -> SSHClient:
 
 
 def _service_path(cfg: dict, service: str, default_dir: str) -> str:
-    base_path = str(cfg["servers"]["app"].get("deploy_path", "~/neobanker")).rstrip("/")
+    base_path = str(cfg["servers"]["app"].get("deploy_path", "~/liulian")).rstrip("/")
     rel = str(cfg.get("deploy", {}).get("services", {}).get(service, {}).get("dir", default_dir)).lstrip("/")
     return f"{base_path}/{rel}"
 
@@ -225,7 +225,7 @@ def _deploy_llm(cfg: dict, dry_run: bool = False) -> bool:
 @click.group()
 @click.version_option(__version__)
 def main() -> None:
-    """Neobanker deployment CLI."""
+    """LIULIAN deployment CLI."""
 
 
 @main.command("doctor")

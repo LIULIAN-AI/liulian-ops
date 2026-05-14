@@ -35,7 +35,7 @@ def deploy_frontend(
     ssh: SSHClient,
     deploy_path: str,
     branch: str = "main",
-    pm2_name: str = "neobanker-frontend-app",
+    pm2_name: str = "liulian-web-app",
     dry_run: bool = False,
 ) -> FrontendDeployResult:
     path = shlex.quote(deploy_path)

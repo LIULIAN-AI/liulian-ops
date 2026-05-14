@@ -18,7 +18,7 @@ def _cfg() -> dict:
                 "ssh_port": 10022,
                 "user": "deploy",
                 "key_path": "~/.ssh/id_ed25519",
-                "deploy_path": "~/neobanker",
+                "deploy_path": "~/liulian",
             },
             "gpu": {
                 "host": "10.0.0.9",
@@ -57,7 +57,7 @@ def test_deploy_backend_all_steps_succeed():
     ssh = MagicMock()
     ssh.run.return_value = SSHResult(exit_code=0, stdout="ok", stderr="")
 
-    result = deploy_backend(ssh, deploy_path="~/neobanker/backend", branch="main", service_name="neobanker-backend")
+    result = deploy_backend(ssh, deploy_path="~/liulian/backend", branch="main", service_name="liulian-api")
 
     assert result.success is True
     assert len(result.steps) == 5
@@ -71,7 +71,7 @@ def test_deploy_backend_build_fails():
         SSHResult(exit_code=1, stdout="", stderr="BUILD FAILURE"),
     ]
 
-    result = deploy_backend(ssh, deploy_path="~/neobanker/backend", branch="main", service_name="neobanker-backend")
+    result = deploy_backend(ssh, deploy_path="~/liulian/backend", branch="main", service_name="liulian-api")
 
     assert result.success is False
     assert "BUILD FAILURE" in result.error
@@ -120,7 +120,7 @@ def test_cli_deploy_backend_routes_to_deployer(monkeypatch):
 
     recorded: dict[str, object] = {}
 
-    def fake_deploy_backend(ssh, deploy_path, branch="main", service_name="neobanker-backend", dry_run=False):
+    def fake_deploy_backend(ssh, deploy_path, branch="main", service_name="liulian-api", dry_run=False):
         recorded["ssh"] = ssh
         recorded["deploy_path"] = deploy_path
         recorded["branch"] = branch
@@ -134,6 +134,6 @@ def test_cli_deploy_backend_routes_to_deployer(monkeypatch):
 
     assert result.exit_code == 0
     assert recorded["ssh"] is app_ssh
-    assert recorded["deploy_path"] == "~/neobanker/backend"
-    assert recorded["service_name"] == "neobanker-backend"
+    assert recorded["deploy_path"] == "~/liulian/backend"
+    assert recorded["service_name"] == "liulian-api"
     assert recorded["dry_run"] is True

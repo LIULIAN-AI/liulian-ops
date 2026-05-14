@@ -49,6 +49,6 @@ def test_default_config_connectivity_priority():
 
 def test_default_config_runtime_names():
     services = DEFAULT_CONFIG["deploy"]["services"]
-    assert services["backend"]["service_name"] == "neobanker-backend"
-    assert services["frontend"]["pm2_name"] == "neobanker-frontend-app"
-    assert services["agent"]["service_name"] == "neobanker-agent"
+    assert services["backend"]["service_name"] == "liulian-api"
+    assert services["frontend"]["pm2_name"] == "liulian-web-app"
+    assert services["agent"]["service_name"] == "liulian-agent"

@@ -35,7 +35,7 @@ def deploy_agent(
     ssh: SSHClient,
     deploy_path: str,
     branch: str = "main",
-    service_name: str = "neobanker-agent",
+    service_name: str = "liulian-agent",
     dry_run: bool = False,
 ) -> AgentDeployResult:
     path = shlex.quote(deploy_path)

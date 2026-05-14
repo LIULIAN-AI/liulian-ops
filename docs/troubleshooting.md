@@ -28,9 +28,9 @@ export VLLM_PORT="<servers.gpu.vllm_port>"
 | `ps aux \| grep -E 'ollama serve\|vllm serve' \| grep -v grep` | No matching process | LLM server not running | Start `ollama serve` or `vllm serve`; check startup logs |
 | `ss -ltnp \| grep -E ":${OLLAMA_PORT}\|:${VLLM_PORT}"` | No listener on expected port | LLM not bound to port/interface | Restart with correct host/port flags; inspect command args |
 | `ps aux \| grep -E "ssh .* -L .*${OLLAMA_PORT}\|autossh .* -L .*${OLLAMA_PORT}" \| grep -v grep` | No tunnel process | Forward tunnel not active | Re-run forward tunnel command with `-f -N -L` |
-| `sudo systemctl status <backend-systemd-service> --no-pager` | `inactive`/`failed` | Backend service failed restart | Check journal logs, rebuild backend, then restart (default service is `neobanker-backend` unless overridden) |
-| `pm2 status` | frontend process missing/offline | Frontend process not running | Restart your configured PM2 app name (default: `neobanker-frontend-app`) and run `pm2 save` |
-| `sudo systemctl status <agent-systemd-service> --no-pager` | `inactive`/`failed` | Agent service failed restart | `cd ~/neobanker/agent && uv sync && uv run pytest -q`, then restart (default service is `neobanker-agent` unless overridden) |
+| `sudo systemctl status <backend-systemd-service> --no-pager` | `inactive`/`failed` | Backend service failed restart | Check journal logs, rebuild backend, then restart (default service is `liulian-api` unless overridden) |
+| `pm2 status` | frontend process missing/offline | Frontend process not running | Restart your configured PM2 app name (default: `liulian-web-app`) and run `pm2 save` |
+| `sudo systemctl status <agent-systemd-service> --no-pager` | `inactive`/`failed` | Agent service failed restart | `cd ~/liulian/agent && uv sync && uv run pytest -q`, then restart (default service is `liulian-agent` unless overridden) |
 
 ## Useful Follow-up Commands
 

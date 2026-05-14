@@ -1,4 +1,4 @@
-# Neobanker Platform Configuration
+# LIULIAN platform configuration (example)
 # Copy to config.yaml and fill in your values.
 # Empty string fields will be prompted on first `neoctl init`.
 
@@ -8,7 +8,7 @@ servers:
     ssh_port: 10022
     user: ""              # SSH username (filled by 'neoctl init')
     key_path: ""          # Path to SSH private key (filled by 'neoctl init')
-    deploy_path: ~/neobanker
+    deploy_path: ~/liulian
 
   gpu:
     host: ""              # GPU Server IP (filled by 'neoctl init')
@@ -68,11 +68,11 @@ deploy:
   mode: native            # "native", "docker", "ci"
   services:
     backend:
-      repo: neo-banker/neobanker-backend-MVP-V2
+      repo: liulian-ai/liulian-api
       dir: backend
     frontend:
-      repo: neo-banker/neobanker-frontend-MVP-V3
+      repo: liulian-ai/liulian-web
       dir: frontend
     agent:
-      repo: neo-banker/neobanker-agent
+      repo: liulian-ai/liulian-agent
       dir: agent

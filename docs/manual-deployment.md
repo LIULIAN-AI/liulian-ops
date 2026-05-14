@@ -75,41 +75,41 @@ curl -s --connect-timeout 5 http://localhost:38000/v1/models
 ssh -p "$APP_SSH_PORT" -i "$APP_KEY" "$APP_USER@$APP_HOST"
 ```
 
-### B2. Backend deploy (`~/neobanker/backend`)
+### B2. Backend deploy (`~/liulian/backend`)
 
 ```bash
-cd ~/neobanker/backend
+cd ~/liulian/backend
 git fetch origin
 git reset --hard origin/main
 export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 ./mvnw -B package -DskipTests --no-transfer-progress
-sudo systemctl restart neobanker-backend
+sudo systemctl restart liulian-api
 sleep 5
 STATUS=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/homepage/hot-search-words)
 [ "$STATUS" = "200" ]
 ```
 
-### B3. Frontend deploy (`~/neobanker/frontend`)
+### B3. Frontend deploy (`~/liulian/frontend`)
 
 ```bash
-cd ~/neobanker/frontend
+cd ~/liulian/frontend
 git fetch origin
 git reset --hard origin/main
 npm ci --prefer-offline
 npm run build
-pm2 restart neobanker-frontend-app && pm2 save
+pm2 restart liulian-web-app && pm2 save
 curl -I http://localhost:3000/homepage
 ```
 
-### B4. Agent deploy (`~/neobanker/agent`)
+### B4. Agent deploy (`~/liulian/agent`)
 
 ```bash
-cd ~/neobanker/agent
+cd ~/liulian/agent
 git fetch origin
 git reset --hard origin/main
 uv sync
 uv run pytest -q
-sudo systemctl restart neobanker-agent
+sudo systemctl restart liulian-agent
 sleep 3
 curl -fsS http://localhost:8000/health
 ```

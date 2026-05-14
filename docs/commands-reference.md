@@ -57,7 +57,7 @@ uv run neoctl deploy backend [--branch TEXT] [--service-name TEXT] [--dry-run]
 
 Defaults:
 - `--branch main`
-- `--service-name` uses `deploy.services.backend.service_name` or `neobanker-backend`
+- `--service-name` uses `deploy.services.backend.service_name` or `liulian-api`
 
 ### `deploy frontend`
 
@@ -67,7 +67,7 @@ uv run neoctl deploy frontend [--branch TEXT] [--pm2-name TEXT] [--dry-run]
 
 Defaults:
 - `--branch main`
-- `--pm2-name` uses `deploy.services.frontend.pm2_name` or `neobanker-frontend-app`
+- `--pm2-name` uses `deploy.services.frontend.pm2_name` or `liulian-web-app`
 
 ### `deploy agent`
 
@@ -77,7 +77,7 @@ uv run neoctl deploy agent [--branch TEXT] [--service-name TEXT] [--dry-run]
 
 Defaults:
 - `--branch main`
-- `--service-name` uses `deploy.services.agent.service_name` or `neobanker-agent`
+- `--service-name` uses `deploy.services.agent.service_name` or `liulian-agent`
 
 ### `deploy all`
 
@@ -92,7 +92,7 @@ Runs `llm -> backend -> frontend -> agent` in order.
 ```bash
 uv run neoctl deploy llm
 uv run neoctl deploy backend --branch main
-uv run neoctl deploy frontend --pm2-name neobanker-frontend-app
-uv run neoctl deploy agent --service-name neobanker-agent
+uv run neoctl deploy frontend --pm2-name liulian-web-app
+uv run neoctl deploy agent --service-name liulian-agent
 uv run neoctl deploy all
 ```

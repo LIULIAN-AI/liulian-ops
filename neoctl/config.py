@@ -13,7 +13,7 @@ DEFAULT_CONFIG: dict[str, Any] = {
             "ssh_port": 10022,
             "user": "",
             "key_path": "",
-            "deploy_path": "~/neobanker",
+            "deploy_path": "~/liulian",
         },
         "gpu": {
             "host": "",
@@ -61,19 +61,19 @@ DEFAULT_CONFIG: dict[str, Any] = {
         "mode": "native",
         "services": {
             "backend": {
-                "repo": "neo-banker/neobanker-backend-MVP-V2",
+                "repo": "liulian-ai/liulian-api-MVP-V2",
                 "dir": "backend",
-                "service_name": "neobanker-backend",
+                "service_name": "liulian-api",
             },
             "frontend": {
-                "repo": "neo-banker/neobanker-frontend-MVP-V3",
+                "repo": "liulian-ai/liulian-web",
                 "dir": "frontend",
-                "pm2_name": "neobanker-frontend-app",
+                "pm2_name": "liulian-web-app",
             },
             "agent": {
-                "repo": "neo-banker/neobanker-agent",
+                "repo": "liulian-ai/liulian-agent",
                 "dir": "agent",
-                "service_name": "neobanker-agent",
+                "service_name": "liulian-agent",
             },
         },
     },

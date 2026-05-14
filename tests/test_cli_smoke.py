@@ -37,7 +37,7 @@ def _cfg() -> dict:
                 "ssh_port": 10022,
                 "user": "deploy",
                 "key_path": "~/.ssh/id_ed25519",
-                "deploy_path": "~/neobanker",
+                "deploy_path": "~/liulian",
             },
             "gpu": {
                 "host": "10.0.0.9",
@@ -170,8 +170,8 @@ def smoke_runtime_patches(monkeypatch):
             ["deploy", "backend", "--dry-run"],
             [
                 "backend planned: git fetch, git reset, maven package, service restart, health check",
-                "cd '~/neobanker/backend' && git fetch origin",
-                "sudo systemctl restart neobanker-backend",
+                "cd '~/liulian/backend' && git fetch origin",
+                "sudo systemctl restart liulian-api",
             ],
         ),
         (
@@ -179,7 +179,7 @@ def smoke_runtime_patches(monkeypatch):
             [
                 "frontend planned: git fetch, git reset, npm ci, npm build, pm2 restart",
                 "npm ci --prefer-offline",
-                "pm2 restart neobanker-frontend-app",
+                "pm2 restart liulian-web-app",
             ],
         ),
         (

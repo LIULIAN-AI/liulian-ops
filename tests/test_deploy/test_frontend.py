@@ -17,7 +17,7 @@ def _cfg() -> dict:
                 "ssh_port": 10022,
                 "user": "deploy",
                 "key_path": "~/.ssh/id_ed25519",
-                "deploy_path": "~/neobanker",
+                "deploy_path": "~/liulian",
             },
             "gpu": {
                 "host": "10.0.0.9",
@@ -56,7 +56,7 @@ def test_deploy_frontend_all_steps_succeed():
     ssh = MagicMock()
     ssh.run.return_value = SSHResult(exit_code=0, stdout="ok", stderr="")
 
-    result = deploy_frontend(ssh, deploy_path="~/neobanker/frontend", pm2_name="neobanker-frontend-app")
+    result = deploy_frontend(ssh, deploy_path="~/liulian/frontend", pm2_name="liulian-web-app")
 
     assert result.success is True
     assert len(result.steps) == 5
@@ -71,7 +71,7 @@ def test_deploy_frontend_npm_build_fails():
         SSHResult(exit_code=1, stdout="", stderr="Build error"),
     ]
 
-    result = deploy_frontend(ssh, deploy_path="~/neobanker/frontend", pm2_name="neobanker-frontend-app")
+    result = deploy_frontend(ssh, deploy_path="~/liulian/frontend", pm2_name="liulian-web-app")
 
     assert result.success is False
     assert "Build error" in result.error
@@ -101,7 +101,7 @@ def test_cli_deploy_frontend_routes_to_deployer(monkeypatch):
 
     recorded: dict[str, object] = {}
 
-    def fake_deploy_frontend(ssh, deploy_path, branch="main", pm2_name="neobanker-frontend-app", dry_run=False):
+    def fake_deploy_frontend(ssh, deploy_path, branch="main", pm2_name="liulian-web-app", dry_run=False):
         recorded["ssh"] = ssh
         recorded["deploy_path"] = deploy_path
         recorded["branch"] = branch
@@ -115,8 +115,8 @@ def test_cli_deploy_frontend_routes_to_deployer(monkeypatch):
 
     assert result.exit_code == 0
     assert recorded["ssh"] is app_ssh
-    assert recorded["deploy_path"] == "~/neobanker/frontend"
-    assert recorded["pm2_name"] == "neobanker-frontend-app"
+    assert recorded["deploy_path"] == "~/liulian/frontend"
+    assert recorded["pm2_name"] == "liulian-web-app"
     assert recorded["dry_run"] is True
 
 
@@ -169,19 +169,19 @@ def test_cli_deploy_all_uses_configured_runtime_names(monkeypatch):
     def ok_result(step: str):
         return type("DeployResult", (), {"success": True, "steps": [step], "error": ""})()
 
-    def fake_deploy_backend(ssh, deploy_path, branch="main", service_name="neobanker-backend", dry_run=False):
+    def fake_deploy_backend(ssh, deploy_path, branch="main", service_name="liulian-api", dry_run=False):
         recorded["backend_ssh"] = ssh
         recorded["backend_service_name"] = service_name
         recorded["backend_dry_run"] = dry_run
         return ok_result("backend")
 
-    def fake_deploy_frontend(ssh, deploy_path, branch="main", pm2_name="neobanker-frontend-app", dry_run=False):
+    def fake_deploy_frontend(ssh, deploy_path, branch="main", pm2_name="liulian-web-app", dry_run=False):
         recorded["frontend_ssh"] = ssh
         recorded["frontend_pm2_name"] = pm2_name
         recorded["frontend_dry_run"] = dry_run
         return ok_result("frontend")
 
-    def fake_deploy_agent(ssh, deploy_path, branch="main", service_name="neobanker-agent", dry_run=False):
+    def fake_deploy_agent(ssh, deploy_path, branch="main", service_name="liulian-agent", dry_run=False):
         recorded["agent_ssh"] = ssh
         recorded["agent_service_name"] = service_name
         recorded["agent_dry_run"] = dry_run

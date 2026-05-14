@@ -18,7 +18,7 @@ def _cfg() -> dict:
                 "ssh_port": 10022,
                 "user": "deploy",
                 "key_path": "~/.ssh/id_ed25519",
-                "deploy_path": "~/neobanker",
+                "deploy_path": "~/liulian",
             },
             "gpu": {
                 "host": "10.0.0.9",
@@ -57,7 +57,7 @@ def test_deploy_agent_all_steps_succeed():
     ssh = MagicMock()
     ssh.run.return_value = SSHResult(exit_code=0, stdout="ok", stderr="")
 
-    result = deploy_agent(ssh, deploy_path="~/neobanker/agent", service_name="neobanker-agent")
+    result = deploy_agent(ssh, deploy_path="~/liulian/agent", service_name="liulian-agent")
 
     assert result.success is True
     assert len(result.steps) == 5
@@ -72,7 +72,7 @@ def test_deploy_agent_test_fails():
         SSHResult(exit_code=1, stdout="", stderr="FAILED tests"),
     ]
 
-    result = deploy_agent(ssh, deploy_path="~/neobanker/agent", service_name="neobanker-agent")
+    result = deploy_agent(ssh, deploy_path="~/liulian/agent", service_name="liulian-agent")
 
     assert result.success is False
     assert "FAILED" in result.error
@@ -102,7 +102,7 @@ def test_cli_deploy_agent_routes_to_deployer(monkeypatch):
 
     recorded: dict[str, object] = {}
 
-    def fake_deploy_agent(ssh, deploy_path, branch="main", service_name="neobanker-agent", dry_run=False):
+    def fake_deploy_agent(ssh, deploy_path, branch="main", service_name="liulian-agent", dry_run=False):
         recorded["ssh"] = ssh
         recorded["deploy_path"] = deploy_path
         recorded["branch"] = branch
@@ -116,8 +116,8 @@ def test_cli_deploy_agent_routes_to_deployer(monkeypatch):
 
     assert result.exit_code == 0
     assert recorded["ssh"] is app_ssh
-    assert recorded["deploy_path"] == "~/neobanker/agent"
-    assert recorded["service_name"] == "neobanker-agent"
+    assert recorded["deploy_path"] == "~/liulian/agent"
+    assert recorded["service_name"] == "liulian-agent"
     assert recorded["dry_run"] is True
 
 

@@ -35,7 +35,7 @@ def deploy_backend(
     ssh: SSHClient,
     deploy_path: str,
     branch: str = "main",
-    service_name: str = "neobanker-backend",
+    service_name: str = "liulian-api",
     dry_run: bool = False,
 ) -> BackendDeployResult:
     path = shlex.quote(deploy_path)

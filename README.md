@@ -1,6 +1,6 @@
 # neoctl
 
-`neoctl` is the Neobanker deployment CLI for:
+`neoctl` is the LIULIAN deployment CLI for:
 - LLM connectivity/bootstrap (`deploy llm`)
 - app service deploys (`deploy backend|frontend|agent`)
 - full orchestration (`deploy all`)

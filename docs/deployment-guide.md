@@ -26,9 +26,9 @@ Set:
 - repo subdirs under `deploy.services.*.dir` if non-default
 
 `deploy backend/frontend/agent` expects checked-out repos at:
-- `~/neobanker/backend`
-- `~/neobanker/frontend`
-- `~/neobanker/agent`
+- `~/liulian/backend`
+- `~/liulian/frontend`
+- `~/liulian/agent`
 
 (or your configured `deploy_path` + service dirs).
 
@@ -94,7 +94,7 @@ Expected:
 
 ```bash
 uv run neoctl deploy llm
-uv run neoctl deploy backend --branch main --service-name neobanker-backend
-uv run neoctl deploy frontend --branch main --pm2-name neobanker-frontend-app
-uv run neoctl deploy agent --branch main --service-name neobanker-agent
+uv run neoctl deploy backend --branch main --service-name liulian-api
+uv run neoctl deploy frontend --branch main --pm2-name liulian-web-app
+uv run neoctl deploy agent --branch main --service-name liulian-agent
 ```
